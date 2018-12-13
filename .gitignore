@@ -1,0 +1,5 @@
+# compiled Python files
+**.pyc
+
+# venv directory
+/server/env/
