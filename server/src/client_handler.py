@@ -15,11 +15,11 @@ class ClientHandler:
         # See server.py for more detail.
         self.socket.settimeout(RECV_TIMEOUT)
 
-        # The thread will be stopped gracefully ASAP when this is switched to True.
+        # The listen thread will be stopped gracefully ASAP when this is switched to True.
         self.isStopping = False
 
-        self.thread = Thread(target=self.__listen)
-        self.thread.start()
+        self.listen_thread = Thread(target=self.__listen)
+        self.listen_thread.start()
 
     def __listen(self):
         print("Connected: " + str(self.address))
