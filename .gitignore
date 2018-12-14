@@ -3,3 +3,6 @@
 
 # venv directory
 /server/env/
+
+# file used for easier multiline commits
+commit_message
