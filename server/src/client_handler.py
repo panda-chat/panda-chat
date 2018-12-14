@@ -1,19 +1,12 @@
-from socket import timeout
 from threading import Thread
 import server
 
-BUFFER_SIZE = 1024
 RECV_TIMEOUT = 5.0
 
 
 class ClientHandler:
-    def __init__(self, socket, address):
-        self.socket = socket
-        self.address = address
-
-        # Stop blocking every so often so the thread can be stopped if needed.
-        # See server.py for more detail.
-        self.socket.settimeout(RECV_TIMEOUT)
+    def __init__(self, connection):
+        self.connection = connection
 
         # The listen thread will be stopped gracefully ASAP when this is switched to True.
         self.isStopping = False
@@ -22,25 +15,22 @@ class ClientHandler:
         self.listen_thread.start()
 
     def __listen(self):
-        print("Connected: " + str(self.address))
+        print("Connected: " + str(self.connection))
         while True:
-            try:
-                message = self.socket.recv(BUFFER_SIZE).decode("utf8")
-                if message:
-                    server.broadcast(message, self.address)
-                else:
-                    self.isStopping = True
-            except timeout:
-                pass
+            message = self.connection.receive(RECV_TIMEOUT)
+            if message == "":
+                self.isStopping = True
+            elif message != None:
+                server.broadcast(message, self.connection)
 
             if self.isStopping:
-                print("Disconnected: " + str(self.address))
-                server.remove_handler(self.address)
-                self.socket.close()
+                print("Disconnected: " + str(self.connection))
+                server.remove_handler(self.connection)
+                self.connection.close()
                 break
 
     def send(self, message):
-        self.socket.send(bytes(message, "utf8"))
+        self.connection.send(message)
 
     def close(self):
         self.isStopping = True
